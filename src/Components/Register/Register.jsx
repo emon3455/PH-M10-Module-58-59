@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import { app } from '../firebase/firebase.config';
+import { Link } from 'react-router-dom';
 
 const Register = () => {
 
@@ -21,20 +22,26 @@ const Register = () => {
             setErrors("Please Add Atleaset 1 Upper Case in password");
             return;
         }
-        else if(!/(?=.*[0-9].*[0-9])/.test(password)){
-            setErrors("Please add Atleaset 2 letter in password")
+        else if (!/(?=.*[0-9])/.test(password)){
+            setErrors("Please add atleaset 1 digit");
+            return
+        }
+        else if(!/(?=.*[!@#\$%\^&\*_])/.test(password)){
+            setErrors("Please add atleast 1 special character");
             return;
         }
         else if(password.length < 6){
             setErrors("Please atleast 6 character in password")
             return;
         }
+        
 
         createUserWithEmailAndPassword(auth,email,password)
         .then(response=>{
             const user = response.user;
             setSuccess("User SuccessFully Created");
             event.target.reset();
+            setErrors("")
         })
         .catch(error=>{
             console.error(error);
@@ -53,6 +60,7 @@ const Register = () => {
                 <br />
                 <input className='btn btn-primary' type="submit" value="Register" />
             </form>
+            <p>Alredy Have an account ? <Link to="/login">Go To Log-in</Link> </p>
 
             <p className='text-danger'>{errors}</p>
             <p className='text-success'>{success}</p>
