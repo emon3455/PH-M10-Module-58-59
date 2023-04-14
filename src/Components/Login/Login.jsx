@@ -1,5 +1,5 @@
-import { getAuth, signInWithEmailAndPassword, sendEmailVerification} from 'firebase/auth';
-import React, { useState } from 'react';
+import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword} from 'firebase/auth';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { app } from '../firebase/firebase.config';
 
@@ -11,6 +11,7 @@ const Login = () => {
 
     const [errors , setErrors] = useState("");
     const [success, setSuccess] = useState("");
+    const emailRef =  useRef();
 
     const handleSubmit =(event)=>{
         event.preventDefault();
@@ -44,7 +45,7 @@ const Login = () => {
         signInWithEmailAndPassword(auth,email,password)
         .then(result=>{
             const logUser = result.user;
-            verifyEmail(logUser);
+            console.log(logUser);
             setSuccess("login In Successfully Done !!");
             setErrors("");
             event.target.reset();
@@ -56,28 +57,39 @@ const Login = () => {
     }
 
 
-    const verifyEmail=(user)=>{
-        sendEmailVerification(user)
+    const handleForgetPassword=()=>{
+
+        const email = emailRef.current.value;
+        if(!email){
+            alert("please add an email address");
+            return;
+        }
+        console.log(email);
+        sendPasswordResetEmail(auth, email)
         .then(res=>{
-            console.log(res);
-            alert("Please verify you email address");
+            alert("please check your email")
         })
         .catch(error=>{
-            setErrors(error.message);
+            setErrors(error.message)
         })
+
     }
+    
 
     return (
         <div className='w-50 mx-auto'>
             <h2>Please Login</h2>
 
             <form onSubmit={handleSubmit}>
-                <input className='w-100 mb-4 p-2 rounded' type="email" name="email" id="email" placeholder='your e-mail' required/>
+                <input className='w-100 mb-4 p-2 rounded' ref={emailRef} type="email" name="email" id="email" placeholder='your e-mail' required/>
                 <br />
                 <input className='w-100 mb-4 p-2 rounded' type="password" name="password" id="password" placeholder='your password' required/>
                 <br />
                 <input className='btn btn-primary' type="submit" value="Register" />
             </form>
+
+            <p><small>Forgot Password ?</small> for Reset <button onClick={handleForgetPassword} className='btn btn-link'>Click Here</button></p>
+
             <p>Don't Have any account ? <Link to="/register">Go To Register</Link> </p>
 
             <p className='text-danger'>{errors}</p>
